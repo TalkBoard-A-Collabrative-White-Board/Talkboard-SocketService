@@ -1,9 +1,16 @@
 import express from "express";
+import { createServer } from "http";
+import { Server } from "socket.io";
 
 const app = express();
+const httpServer = createServer(app);
 
-app.get("/", (req, res) => {
-  res.send("Welcome To talkBoard Socket Service");
+const io = new Server(httpServer, {
+  cors: { origin: "*" },
 });
 
-export default app;
+io.on("connection", (socket) => {
+  console.log(`connected ${socket.id}`);
+});
+
+export { app, httpServer };

@@ -1,5 +1,5 @@
-import app from "./server.js";
+import { httpServer } from "./server.js";
 
-app.listen(3000, () => {
-  console.log("Server Running on port");
+httpServer.listen(3000, () => {
+  console.log("socketService Running on 3000");
 });
