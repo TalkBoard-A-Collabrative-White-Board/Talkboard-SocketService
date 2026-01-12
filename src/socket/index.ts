@@ -1,9 +1,8 @@
+import { roomHandler } from "./modules/room/room.handler.js";
 import { io } from "./socket.server.js";
 
 const initSocket = () => {
-  io.on("connection", (socket) => {
-    console.log(`New Socket Connected ${socket.id}`);
-  });
+  roomHandler(io);
 };
 
 export { initSocket };
