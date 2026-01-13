@@ -1,6 +1,7 @@
 import { Server, Socket } from "socket.io";
 import { EVENTS } from "../../events.js";
 import { roomStore } from "../../../store/room.store.js";
+import { userStore } from "../../../store/user.store.js";
 
 interface JoinRoomPayload {
   roomId: string;
@@ -34,8 +35,34 @@ const roomHandler = (io: Server) => {
       });
 
       socket.to(roomId).emit("room:user-joined", { userId });
+      userStore.set(socket.id, userId, roomId);
 
       console.log(`User ${userId} Joined Room : ${roomId}`);
+    });
+
+    socket.on(EVENTS.ROOM_LEAVE, ({ roomId, userId }) => {
+      roomStore.leaveRoom(roomId, userId);
+      socket.leave(roomId);
+
+      socket.to(roomId).emit("room:user-left", { userId });
+
+      userStore.remove(socket.id);
+      console.log(`User ${userId} left Room: ${roomId}`);
+    });
+
+    socket.on("disconnect", () => {
+      const userId = userStore.getUser(socket.id);
+      if (!userId) return;
+
+      const roomId = userStore.getRoom(userId);
+      if (!roomId) return;
+
+      roomStore.leaveRoom(roomId, userId);
+
+      socket.to(roomId).emit("room:user-left", { userId });
+      userStore.remove(socket.id);
+
+      console.log(`User: ${userId} Discconnect From ${roomId}`);
     });
   });
 };
