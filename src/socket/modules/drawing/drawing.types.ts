@@ -20,4 +20,12 @@ type DrawFreeHandPayload = {
   width: number;
 };
 
-export type { Point, DrawLinePayload, DrawFreeHandPayload };
+type DrawBatchPayload = {
+  roomId: string;
+  userId: string;
+  points: Point[];
+  color: string;
+  width: number;
+};
+
+export type { Point, DrawLinePayload, DrawFreeHandPayload, DrawBatchPayload };

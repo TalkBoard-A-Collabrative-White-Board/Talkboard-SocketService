@@ -1,6 +1,12 @@
 import type { Server, Socket } from "socket.io";
 import { drawingService } from "./drawing.server.js";
-import type { DrawFreeHandPayload, DrawLinePayload } from "./drawing.types.js";
+import { throttle } from "../../utils/throttlle.js";
+
+import type {
+  DrawFreeHandPayload,
+  DrawLinePayload,
+  DrawBatchPayload,
+} from "./drawing.types.js";
 
 const drawingHandler = (io: Server) => {
   io.on("connection", (socket: Socket) => {
@@ -17,15 +23,34 @@ const drawingHandler = (io: Server) => {
     });
 
     socket.on("draw:freehand", (data: DrawFreeHandPayload) => {
-      try {
-        const processed = drawingService.processFreehand(data);
-
-        socket.to(data.roomId).emit("draw:freehand", processed);
-      } catch (err: unknown) {
-        const message =
-          err instanceof Error ? err.message : "Unknown Error Occured";
-        socket.emit("draw:error", { message });
+      let freehandBuffer: DrawBatchPayload | null = null;
+      if (!freehandBuffer) {
+        freehandBuffer = {
+          roomId: data.roomId,
+          userId: data.userId,
+          points: [],
+          color: data.color,
+          width: data.width,
+        };
       }
+      freehandBuffer.points.push(...data.points);
+
+      const flushFreehand = throttle(() => {
+        if (!freehandBuffer) return;
+
+        try {
+          const processed = drawingService.processFreehand(freehandBuffer);
+
+          socket.to(freehandBuffer.roomId).emit("draw:freehand", processed);
+        } catch (err: unknown) {
+          const message =
+            err instanceof Error ? err.message : "Unknown Error Occured";
+          socket.emit("draw:error", { message });
+        }
+
+        flushFreehand();
+        freehandBuffer = null;
+      }, 40);
     });
   });
 };
