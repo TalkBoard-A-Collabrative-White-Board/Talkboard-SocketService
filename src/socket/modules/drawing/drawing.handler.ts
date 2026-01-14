@@ -22,8 +22,24 @@ const drawingHandler = (io: Server) => {
       }
     });
 
+    let freehandBuffer: DrawBatchPayload | null = null;
+
+    const flushFreehand = throttle(() => {
+      if (!freehandBuffer) return;
+
+      try {
+        const processed = drawingService.processFreehand(freehandBuffer);
+        socket.to(freehandBuffer.roomId).emit("draw:batch", processed);
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error ? err.message : "Unknown Error Occurred";
+        socket.emit("draw:error", { message });
+      }
+
+      freehandBuffer = null;
+    }, 40);
+
     socket.on("draw:freehand", (data: DrawFreeHandPayload) => {
-      let freehandBuffer: DrawBatchPayload | null = null;
       if (!freehandBuffer) {
         freehandBuffer = {
           roomId: data.roomId,
@@ -33,24 +49,9 @@ const drawingHandler = (io: Server) => {
           width: data.width,
         };
       }
+
       freehandBuffer.points.push(...data.points);
-
-      const flushFreehand = throttle(() => {
-        if (!freehandBuffer) return;
-
-        try {
-          const processed = drawingService.processFreehand(freehandBuffer);
-
-          socket.to(freehandBuffer.roomId).emit("draw:freehand", processed);
-        } catch (err: unknown) {
-          const message =
-            err instanceof Error ? err.message : "Unknown Error Occured";
-          socket.emit("draw:error", { message });
-        }
-
-        flushFreehand();
-        freehandBuffer = null;
-      }, 40);
+      flushFreehand();
     });
   });
 };
