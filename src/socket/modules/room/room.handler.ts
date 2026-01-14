@@ -57,7 +57,18 @@ const roomHandler = (io: Server) => {
       const roomId = userStore.getRoom(userId);
       if (!roomId) return;
 
+      const room = roomStore.getRoom(roomId);
+      if (!room) return;
+
       roomStore.leaveRoom(roomId, userId);
+
+      if (room.hostId === userId) {
+        const newHost = roomStore.transferHost(roomId);
+
+        if (newHost) {
+          io.to(roomId).emit("room:new-host", { userId: newHost });
+        }
+      }
 
       socket.to(roomId).emit("room:user-left", { userId });
       userStore.remove(socket.id);

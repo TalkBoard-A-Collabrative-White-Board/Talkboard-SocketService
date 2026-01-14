@@ -40,6 +40,17 @@ class RoomStore {
       this.rooms.delete(roomId);
     }
   }
+  transferHost(roomId: string): string | null {
+    const room = this.rooms.get(roomId);
+
+    if (!room || room.participants.size === 0) return null;
+
+    const newHost = [...room.participants][0];
+    if (!newHost) return null;
+    room.hostId = newHost;
+
+    return newHost;
+  }
 }
 
 export const roomStore = new RoomStore();
