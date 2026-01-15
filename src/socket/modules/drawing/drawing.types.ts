@@ -38,6 +38,22 @@ type ClearBoardPayLoad = {
   userId: string;
 };
 
+type ShapeType = "rect" | "circle" | "text";
+
+type DrawShapePayload = {
+  roomId: string;
+  userId: string;
+  shapeId: string;
+  type: ShapeType;
+  x: number;
+  y: number;
+  width?: number;
+  height?: number;
+  radius?: number;
+  text?: string;
+  color: string;
+};
+
 export type {
   Point,
   DrawLinePayload,
@@ -45,4 +61,6 @@ export type {
   DrawBatchPayload,
   ErasePayload,
   ClearBoardPayLoad,
+  ShapeType,
+  DrawShapePayload,
 };

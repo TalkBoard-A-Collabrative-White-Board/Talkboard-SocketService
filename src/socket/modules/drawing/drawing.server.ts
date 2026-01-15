@@ -3,6 +3,7 @@ import type {
   ClearBoardPayLoad,
   DrawFreeHandPayload,
   DrawLinePayload,
+  DrawShapePayload,
   ErasePayload,
 } from "./drawing.types.js";
 
@@ -28,6 +29,12 @@ class DrawingService {
   }
 
   processClear(data: ClearBoardPayLoad) {
+    if (!isHost(data.roomId, data.userId)) {
+      throw new Error("Only Host Can Clear Board");
+    }
+  }
+
+  processShape(data: DrawShapePayload) {
     if (!isHost(data.roomId, data.userId)) {
       throw new Error("Only Host Can Clear Board");
     }

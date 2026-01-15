@@ -8,6 +8,7 @@ import type {
   DrawBatchPayload,
   ErasePayload,
   ClearBoardPayLoad,
+  DrawShapePayload,
 } from "./drawing.types.js";
 
 const drawingHandler = (io: Server) => {
@@ -71,6 +72,17 @@ const drawingHandler = (io: Server) => {
       try {
         const proccesed = drawingService.processClear(data);
         socket.to(data.roomId).emit("draw:clear", proccesed);
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error ? err.message : "Unknown Error Occurred";
+        socket.emit("draw:error", { message });
+      }
+    });
+
+    socket.on("draw:shape", (data: DrawShapePayload) => {
+      try {
+        const proccesed = drawingService.processShape(data);
+        socket.to(data.roomId).emit("draw:shape", proccesed);
       } catch (err: unknown) {
         const message =
           err instanceof Error ? err.message : "Unknown Error Occurred";
