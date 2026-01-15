@@ -27,5 +27,22 @@ type DrawBatchPayload = {
   color: string;
   width: number;
 };
+type ErasePayload = {
+  roomId: string;
+  userId: string;
+  strokeId: string;
+};
 
-export type { Point, DrawLinePayload, DrawFreeHandPayload, DrawBatchPayload };
+type ClearBoardPayLoad = {
+  roomId: string;
+  userId: string;
+};
+
+export type {
+  Point,
+  DrawLinePayload,
+  DrawFreeHandPayload,
+  DrawBatchPayload,
+  ErasePayload,
+  ClearBoardPayLoad,
+};

@@ -6,6 +6,8 @@ import type {
   DrawFreeHandPayload,
   DrawLinePayload,
   DrawBatchPayload,
+  ErasePayload,
+  ClearBoardPayLoad,
 } from "./drawing.types.js";
 
 const drawingHandler = (io: Server) => {
@@ -52,6 +54,28 @@ const drawingHandler = (io: Server) => {
 
       freehandBuffer.points.push(...data.points);
       flushFreehand();
+    });
+
+    socket.on("draw:erase", (data: ErasePayload) => {
+      try {
+        const proccesed = drawingService.processErase(data);
+        socket.to(data.roomId).emit("draw:erase", proccesed);
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error ? err.message : "Unknown Error Occurred";
+        socket.emit("draw:error", { message });
+      }
+    });
+
+    socket.on("draw:clear", (data: ClearBoardPayLoad) => {
+      try {
+        const proccesed = drawingService.processClear(data);
+        socket.to(data.roomId).emit("draw:clear", proccesed);
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error ? err.message : "Unknown Error Occurred";
+        socket.emit("draw:error", { message });
+      }
     });
   });
 };
