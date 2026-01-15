@@ -6,6 +6,7 @@ const EVENTS = {
   DRAW_BATCH: "draw:batch",
   DRAW_ERASE: "draw:erase",
   DRAW_CLEAR: "draw:clear",
+  BOARD_SYNC: "board:sync",
 };
 
 export { EVENTS };

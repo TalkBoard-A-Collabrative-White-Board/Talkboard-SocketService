@@ -2,6 +2,7 @@ import { Server, Socket } from "socket.io";
 import { EVENTS } from "../../events.js";
 import { roomStore } from "../../../store/room.store.js";
 import { userStore } from "../../../store/user.store.js";
+import { boardStore } from "../../../store/board.store.js";
 
 interface JoinRoomPayload {
   roomId: string;
@@ -36,6 +37,9 @@ const roomHandler = (io: Server) => {
 
       socket.to(roomId).emit("room:user-joined", { userId });
       userStore.set(socket.id, userId, roomId);
+
+      const board = boardStore.getBoard(roomId);
+      socket.emit("board:sync", board);
 
       console.log(`User ${userId} Joined Room : ${roomId}`);
     });

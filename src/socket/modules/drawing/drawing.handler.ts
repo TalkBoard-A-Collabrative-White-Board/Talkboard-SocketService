@@ -10,6 +10,7 @@ import type {
   ClearBoardPayLoad,
   DrawShapePayload,
 } from "./drawing.types.js";
+import { boardStore } from "../../../store/board.store.js";
 
 const drawingHandler = (io: Server) => {
   io.on("connection", (socket: Socket) => {
@@ -18,6 +19,11 @@ const drawingHandler = (io: Server) => {
         const processed = drawingService.processLine(data);
 
         socket.to(data.roomId).emit("draw-line", processed);
+
+        boardStore.addAction(data.roomId, {
+          type: "line",
+          data: processed,
+        });
       } catch (err: unknown) {
         const message =
           err instanceof Error ? err.message : "Unknown Error Occured";
@@ -33,6 +39,10 @@ const drawingHandler = (io: Server) => {
       try {
         const processed = drawingService.processFreehand(freehandBuffer);
         socket.to(freehandBuffer.roomId).emit("draw:batch", processed);
+        boardStore.addAction(freehandBuffer.roomId, {
+          type: "batch",
+          data: processed,
+        });
       } catch (err: unknown) {
         const message =
           err instanceof Error ? err.message : "Unknown Error Occurred";
@@ -59,8 +69,12 @@ const drawingHandler = (io: Server) => {
 
     socket.on("draw:erase", (data: ErasePayload) => {
       try {
-        const proccesed = drawingService.processErase(data);
-        socket.to(data.roomId).emit("draw:erase", proccesed);
+        const processed = drawingService.processErase(data);
+        socket.to(data.roomId).emit("draw:erase", processed);
+        boardStore.addAction(data.roomId, {
+          type: "erase",
+          data: processed,
+        });
       } catch (err: unknown) {
         const message =
           err instanceof Error ? err.message : "Unknown Error Occurred";
@@ -70,8 +84,9 @@ const drawingHandler = (io: Server) => {
 
     socket.on("draw:clear", (data: ClearBoardPayLoad) => {
       try {
-        const proccesed = drawingService.processClear(data);
-        socket.to(data.roomId).emit("draw:clear", proccesed);
+        const processed = drawingService.processClear(data);
+        socket.to(data.roomId).emit("draw:clear", processed);
+        boardStore.clear(data.roomId);
       } catch (err: unknown) {
         const message =
           err instanceof Error ? err.message : "Unknown Error Occurred";
@@ -81,8 +96,12 @@ const drawingHandler = (io: Server) => {
 
     socket.on("draw:shape", (data: DrawShapePayload) => {
       try {
-        const proccesed = drawingService.processShape(data);
-        socket.to(data.roomId).emit("draw:shape", proccesed);
+        const processed = drawingService.processShape(data);
+        socket.to(data.roomId).emit("draw:shape", processed);
+        boardStore.addAction(data.roomId, {
+          type: "shape",
+          data: processed,
+        });
       } catch (err: unknown) {
         const message =
           err instanceof Error ? err.message : "Unknown Error Occurred";
