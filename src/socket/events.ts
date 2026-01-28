@@ -9,6 +9,11 @@ const EVENTS = {
   BOARD_SYNC: "board:sync",
   CURSOR_MOVE: "cursor:move",
   CURSOR_LEAVE: "cursor:leave",
+  WEBRTC_OFFER: "webrtc:offer",
+  WEBRTC_ANSER: "webrtc:answer",
+  WEBRTC_ICE: "webrtc:ice",
+  WEBRTC_JOIN: "webrtc:join",
+  WEBRTC_LEAVE: "webrtc:leave",
 };
 
 export { EVENTS };
