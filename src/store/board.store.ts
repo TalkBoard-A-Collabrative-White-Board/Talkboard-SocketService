@@ -1,26 +1,38 @@
-type BoardAction =
-  | { type: "line"; data: unknown }
-  | { type: "batch"; data: unknown }
-  | { type: "shape"; data: unknown }
-  | { type: "erase"; data: unknown }
-  | { type: "clear" };
+import { boardRepo } from "../DB/repositories/board.repo.js";
+
+// type BoardAction =
+//   | { type: "line"; data: unknown }
+//   | { type: "batch"; data: unknown }
+//   | { type: "shape"; data: unknown }
+//   | { type: "erase"; data: unknown }
+//   | { type: "clear" };
 
 class BoardStore {
-  private boards = new Map<string, BoardAction[]>();
+  private boards = new Map<string, unknown[]>();
 
-  addAction(roomId: string, action: BoardAction) {
+  async load(roomId: string) {
+    const fromDB = await boardRepo.get(roomId);
+    if (fromDB) {
+      this.boards.set(roomId, fromDB);
+    }
+    return this.boards.get(roomId) || [];
+  }
+
+  addAction(roomId: string, action: unknown) {
     if (!this.boards.has(roomId)) {
       this.boards.set(roomId, []);
     }
     this.boards.get(roomId)!.push(action);
+    boardRepo.save(roomId, this.boards.get(roomId)!);
   }
 
-  getBoard(roomId: string) {
+  get(roomId: string) {
     return this.boards.get(roomId) || [];
   }
 
-  clear(roomId: string) {
+  async clear(roomId: string) {
     this.boards.delete(roomId);
+    await boardRepo.delete(roomId);
   }
 }
 

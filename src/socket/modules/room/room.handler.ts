@@ -12,7 +12,7 @@ interface JoinRoomPayload {
 
 const roomHandler = (io: Server) => {
   io.on("connection", (socket: Socket) => {
-    socket.on(EVENTS.ROOM_JOIN, (data: JoinRoomPayload) => {
+    socket.on(EVENTS.ROOM_JOIN, async (data: JoinRoomPayload) => {
       const { roomId, userId, isHost } = data;
 
       let room = roomStore.getRoom(roomId);
@@ -38,7 +38,7 @@ const roomHandler = (io: Server) => {
       socket.to(roomId).emit("room:user-joined", { userId });
       userStore.set(socket.id, userId, roomId);
 
-      const board = boardStore.getBoard(roomId);
+      const board = await boardStore.load(roomId);
       socket.emit("board:sync", board);
 
       console.log(`User ${userId} Joined Room : ${roomId}`);
