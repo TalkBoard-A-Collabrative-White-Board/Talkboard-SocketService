@@ -7,6 +7,8 @@ const EVENTS = {
   DRAW_ERASE: "draw:erase",
   DRAW_CLEAR: "draw:clear",
   BOARD_SYNC: "board:sync",
+  CURSOR_MOVE: "cursor:move",
+  CURSOR_LEAVE: "cursor:leave",
 };
 
 export { EVENTS };
