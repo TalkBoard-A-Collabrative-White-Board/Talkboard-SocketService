@@ -5,9 +5,11 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+const PORT = process.env.PORT || 3000;
+
 initSocket();
 await connectMongo();
 
-httpServer.listen(3000, () => {
-  console.log("socketService Running on 3000");
+httpServer.listen(PORT, () => {
+  console.log(`socketService Running on ${PORT}`);
 });
